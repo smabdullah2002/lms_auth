@@ -2,7 +2,7 @@ from django.db import models
 from _applib.model_choices_field import GenderChoice, status
 
 class TeacherModel(models.Model):
-    phone_number = models.CharField(max_length=11, unique=True)
+    phone_number = models.CharField(max_length=14, unique=True)
     full_name= models.CharField(max_length=100)
     profile_picture= models.CharField(max_length=300)
     gender=models.CharField(max_length=10, choices=GenderChoice.choices, default=GenderChoice.OTHER)
