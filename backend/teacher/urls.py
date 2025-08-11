@@ -5,4 +5,3 @@ urlpatterns=[
     path('login/', TeacherLoginView.as_view(), name='teacher_login'),
 ]
 
-#http://127.0.0.1:8000/teacher/login/
