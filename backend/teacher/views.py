@@ -5,12 +5,31 @@ from rest_framework import status
 from .models import TeacherModel
 from django.contrib.auth.hashers import make_password, check_password
 from .serializers import TeacherRegistrationSerializer
+import requests
+import json
 
 class TeacherRegistrationView(APIView):
+    
+
+    def send_otp(self, phone_number):
+        url = "http://127.0.0.1:8001/otp/send/"
+        payload = json.dumps({
+            "otp_for": "sms",
+            "identifier": phone_number,
+            "reason": "registration"
+            })
+        headers = {
+        'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        return response
+
+    
     def post(self, request):
         user_provided_data= request.data
         register_serializer=TeacherRegistrationSerializer(data= user_provided_data)
-        print("=============", register_serializer.initial_data.get("phone_number")[-11:])
+        # print("=============", register_serializer.initial_data.get("phone_number")[-11:])
         if TeacherModel.objects.filter(phone_number=register_serializer.initial_data.get("phone_number")[-11:]).exists():
             return Response(
                 {"message": "Phone number already exists"},
@@ -25,6 +44,8 @@ class TeacherRegistrationView(APIView):
             # website=register_serializer.validated_data.get("full_name"),,
             password=make_password(register_serializer.validated_data.get("password")),
             )
+            self.send_otp(register_serializer.validated_data.get("phone_number")[-11:])
+            
             return Response(
                 {"message": "Registration successful"},
                 status=status.HTTP_201_CREATED
@@ -35,11 +56,7 @@ class TeacherRegistrationView(APIView):
                 "errors": register_serializer.errors},   
             )
         
-     
 
-            
-        
-        
         
         ########## not using serializer ##########
         # phone_number= request.data.get("phone_number")
@@ -49,9 +66,6 @@ class TeacherRegistrationView(APIView):
         # website= request.data.get("website")
         # password= make_password(request.data.get("password"))
 
-      
-        
-       
 
 class TeacherLoginView(APIView):
     def post(self, request):
