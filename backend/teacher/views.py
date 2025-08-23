@@ -6,24 +6,24 @@ from .models import TeacherModel
 from django.contrib.auth.hashers import make_password, check_password
 from .serializers import TeacherRegistrationSerializer
 import requests
-import json
+
 
 class TeacherRegistrationView(APIView):
     
-
+    ######function to send OTP to another service(exaple of microservice)
     def send_otp(self, phone_number):
         url = "http://127.0.0.1:8001/otp/send/"
-        payload = json.dumps({
+        payload = {
             "otp_for": "sms",
             "identifier": phone_number,
             "reason": "registration"
-            })
-        headers = {
-        'Content-Type': 'application/json'
-        }
+            }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
-        return response
+        otp_script= requests.post(
+            url="http://127.0.0.1:8001/otp/send/",
+            data=payload
+        )
+        print("message====>>>>", otp_script.status_code)
 
     
     def post(self, request):
