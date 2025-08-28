@@ -1,5 +1,5 @@
 from django.db import models
-from _applib.model_choices_field import GenderChoice, status
+from _applib.model_choices_field import GenderChoice, Status
 
 class TeacherModel(models.Model):
     phone_number = models.CharField(max_length=14, unique=True)
@@ -8,7 +8,7 @@ class TeacherModel(models.Model):
     gender=models.CharField(max_length=10, choices=GenderChoice.choices, default=GenderChoice.OTHER)
     website=models.CharField(max_length=100, blank=True, null=True)
     password=models.CharField(max_length=300, blank=False, null=False)
-    status=models.CharField(max_length=10, choices=status.choices, default=status.PENDING)
+    status=models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
     

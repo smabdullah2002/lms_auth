@@ -5,12 +5,13 @@ from rest_framework import status
 from .models import TeacherModel
 from django.contrib.auth.hashers import make_password, check_password
 from .serializers import TeacherRegistrationSerializer
+from _applib.model_choices_field import Status
 import requests
 
 
 class TeacherRegistrationView(APIView):
     
-    ######function to send OTP to another service(exaple of microservice)
+    ######function to send OTP to another service(example of microservice)
     def send_otp(self, phone_number):
         url = "http://127.0.0.1:8001/otp/send/"
         payload = {
@@ -88,5 +89,44 @@ class TeacherLoginView(APIView):
                 {"message": "Teacher not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
+            
+class TeacherActivationView(APIView):
+    def patch(self, request):
+        data=request.data
+        phone_number=data.get("phone_number")
+        otp=data.get("otp_code")
+        print("phone_number====>>>>", phone_number)
+        print("otp====>>>>", otp)
         
+        payload={
+            "phone_number": phone_number,
+            "otp_code": otp
+        }
         
+        verify_otp=requests.post(
+            url="http://127.0.0.1:8001/otp/verify/",
+            json=payload
+        )
+
+        print("verify otp response====>>>>", verify_otp.json())  
+
+        is_otp_valid= verify_otp.json().get("is_valid")
+        
+        if is_otp_valid:
+            try:
+                teacher=TeacherModel.objects.get(phone_number=phone_number)
+                teacher.status=Status.APPROVED
+                teacher.save()
+                return Response(
+                    {"message": "Teacher account activated successfully"},
+                    status=status.HTTP_200_OK
+                )
+            except TeacherModel.DoesNotExist:
+                return Response(
+                    {"message": "Teacher not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        return Response(
+            {"message": "Invalid OTP"},
+            status=status.HTTP_400_BAD_REQUEST
+        )

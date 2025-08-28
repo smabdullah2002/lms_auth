@@ -6,7 +6,7 @@ class GenderChoice(models.TextChoices):
     OTHER="OTHER"
 
 
-class status(models.TextChoices):
+class Status(models.TextChoices):
     PENDING= "PENDING",
     APPROVED= "APPROVED",
     DELETED= "DELETED",
